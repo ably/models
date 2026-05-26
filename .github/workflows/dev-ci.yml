@@ -6,9 +6,13 @@ on:
     branches:
       - main
 
+permissions: {}
+
 jobs:
   audit:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v2
         with:
@@ -20,6 +24,8 @@ jobs:
       - run: npm audit --production
   format-check:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v2
         with:
@@ -31,6 +37,8 @@ jobs:
       - run: npm run format:check
   lint:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v2
         with:
@@ -42,6 +50,8 @@ jobs:
       - run: npm run lint
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v2
         with:
@@ -54,6 +64,7 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       id-token: write
       deployments: write
     steps:
@@ -91,6 +102,8 @@ jobs:
           artifactName: typedoc
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v2
         with:
