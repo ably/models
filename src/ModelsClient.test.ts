@@ -1,19 +1,19 @@
-import { Realtime } from 'ably';
+import { createClient, PubSubClient } from '@ably/pubsub-device';
 import { vi, it, describe, expect, expectTypeOf, beforeEach } from 'vitest';
 
-import ModelsClient from './ModelsClient.js';
+import { createModelsClient, DefaultModelsClient } from './ModelsClient.js';
 import { VERSION } from './version.js';
 
 interface ModelsTestContext {
-  ably: Realtime;
+  ably: PubSubClient;
   channelName: string;
 }
 
-vi.mock('ably');
+vi.mock('@ably/pubsub-device');
 
 describe('ModelsClient', () => {
   beforeEach<ModelsTestContext>((context) => {
-    context.ably = new Realtime({ key: 'abc:def' });
+    context.ably = createClient({ key: 'abc:def' });
     context.channelName = 'models:myTestModel:updates';
 
     // make sure the various channel and connection
@@ -25,23 +25,25 @@ describe('ModelsClient', () => {
   });
 
   it<ModelsTestContext>('correctly instantiates the models client', ({ ably }) => {
-    const modelsClient = new ModelsClient({ ably });
-    expectTypeOf(modelsClient.ably).toMatchTypeOf<Realtime>();
-    expect(modelsClient.ably['options']).toEqual({ agents: { models: VERSION } });
+    const modelsClient = createModelsClient({ pubsubClient: ably });
+    expect(modelsClient).toBeInstanceOf(DefaultModelsClient);
+    expect(modelsClient.pubsubClient).toBe(ably);
+    expectTypeOf(modelsClient.pubsubClient).toMatchTypeOf<PubSubClient>();
+    expect(modelsClient.pubsubClient['options']).toEqual({ agents: { models: VERSION } });
   });
 
   it<ModelsTestContext>('preserves existing agent', ({ ably }) => {
     ably['options'] = { agents: { foo: 'bar' } };
-    const modelsClient = new ModelsClient({ ably });
-    expectTypeOf(modelsClient.ably).toMatchTypeOf<Realtime>();
-    expect(modelsClient.ably['options']).toEqual({ agents: { models: VERSION, foo: 'bar' } });
+    const modelsClient = createModelsClient({ pubsubClient: ably });
+    expectTypeOf(modelsClient.pubsubClient).toMatchTypeOf<PubSubClient>();
+    expect(modelsClient.pubsubClient['options']).toEqual({ agents: { models: VERSION, foo: 'bar' } });
   });
 
   it<ModelsTestContext>('getting a model with the same name returns the same instance', async ({
     ably,
     channelName,
   }) => {
-    const modelsClient = new ModelsClient({ ably });
+    const modelsClient = createModelsClient({ pubsubClient: ably });
     const model1 = modelsClient.models.get({
       channelName: channelName,
       sync: async (page: number) => {

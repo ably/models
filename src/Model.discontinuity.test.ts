@@ -1,4 +1,12 @@
-import { Realtime, ConnectionState, ConnectionStateChange, ChannelStateChange, PaginatedResult, Message } from 'ably';
+import {
+  createClient,
+  ConnectionState,
+  ConnectionStateChange,
+  ChannelStateChange,
+  PaginatedResult,
+  Message,
+  PubSubClient,
+} from '@ably/pubsub-device';
 import pino from 'pino';
 import { Subject } from 'rxjs';
 import { it, describe, expect, vi, beforeEach } from 'vitest';
@@ -9,13 +17,13 @@ import { ModelOptions } from './types/model.js';
 import { statePromise } from './utilities/promises.js';
 import { getEventPromises } from './utilities/test/promises.js';
 
-vi.mock('ably');
+vi.mock('@ably/pubsub-device');
 
-type ModelTestContext = { channelName: string } & ModelOptions;
+type ModelTestContext = { channelName: string; ably: PubSubClient } & Omit<ModelOptions, 'pubsubClient'>;
 
 describe('Model', () => {
   beforeEach<ModelTestContext>(async (context) => {
-    const ably = new Realtime({});
+    const ably = createClient({});
     ably.connection.whenState = vi.fn<[ConnectionState], Promise<ConnectionStateChange>>(async () => {
       return {
         current: 'connected',
@@ -73,7 +81,7 @@ describe('Model', () => {
       'test',
       { sync: sync, merge: mergeFn },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -150,7 +158,7 @@ describe('Model', () => {
       'test',
       { sync: sync, merge: mergeFn },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,

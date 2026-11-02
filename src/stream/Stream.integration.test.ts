@@ -1,4 +1,4 @@
-import { Realtime, RealtimeChannel } from 'ably';
+import { createClient, RealtimeChannel, PubSubClient } from '@ably/pubsub-device';
 import pino from 'pino';
 import { it, describe, expect, beforeEach, afterEach } from 'vitest';
 
@@ -8,7 +8,8 @@ import type { StreamOptions } from '../types/stream.js';
 import { createAblyApp } from '../utilities/test/createAblyApp.js';
 import { VERSION } from '../version.js';
 
-interface StreamTestContext extends StreamOptions {
+interface StreamTestContext extends Omit<StreamOptions, 'pubsubClient'> {
+  ably: PubSubClient;
   stream: Stream;
   channel: RealtimeChannel;
 }
@@ -26,14 +27,14 @@ describe('Stream integration', () => {
         },
       ],
     });
-    const ably = new Realtime({
+    const ably = createClient({
       key: data.keys[0].keyStr,
-      environment: 'sandbox',
+      endpoint: 'sandbox',
     });
     const logger = pino({ level: 'silent' });
     const channel = ably.channels.get(name);
     const stream = new Stream({
-      ably,
+      pubsubClient: ably,
       logger,
       channelName: name,
       syncOptions: defaultSyncOptions,

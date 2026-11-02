@@ -1,4 +1,4 @@
-import { Realtime } from 'ably';
+import { createClient, type PubSubClient } from '@ably/pubsub-device';
 import pino from 'pino';
 import { Subject } from 'rxjs';
 import { v4 as uuid } from 'uuid';
@@ -11,7 +11,8 @@ import { fixedRetryStrategy } from './utilities/retries.js';
 import { createAblyApp } from './utilities/test/createAblyApp.js';
 import { foreachSync, getEventPromises } from './utilities/test/promises.js';
 
-interface TestContext extends ModelOptions {
+interface TestContext extends Omit<ModelOptions, 'pubsubClient'> {
+  ably: PubSubClient;
   model: Model<any>;
   channelName: string;
   eventData: {
@@ -22,7 +23,8 @@ interface TestContext extends ModelOptions {
   syncData: Record<number, any>;
 }
 
-interface TestStreamContext extends ModelOptions {
+interface TestStreamContext extends Omit<ModelOptions, 'pubsubClient'> {
+  ably: PubSubClient;
   model: Model<any>;
   channelName: string;
 }
@@ -60,9 +62,9 @@ describe('Model integration', () => {
           sequenceId: '2',
         },
       };
-      const ably = new Realtime({
+      const ably = createClient({
         key: data.keys[0].keyStr,
-        environment: 'sandbox',
+        endpoint: 'sandbox',
       });
       const logger = pino({ level: 'debug' });
       const model = new Model(
@@ -72,7 +74,7 @@ describe('Model integration', () => {
           merge: (state: object, event) => (state ? { ...state, ...event.data } : event.data),
         },
         {
-          ably,
+          pubsubClient: ably,
           channelName,
           logger,
           syncOptions: defaultSyncOptions,
@@ -305,9 +307,9 @@ describe('Model integration', () => {
         ],
       });
 
-      const ably = new Realtime({
+      const ably = createClient({
         key: data.keys[0].keyStr,
-        environment: 'sandbox',
+        endpoint: 'sandbox',
       });
       const logger = pino({ level: 'debug' });
       const model = new Model(
@@ -320,7 +322,7 @@ describe('Model integration', () => {
           merge: (state: object, event) => (state ? { ...state, ...event.data } : event.data),
         },
         {
-          ably,
+          pubsubClient: ably,
           channelName,
           logger,
           syncOptions: { ...defaultSyncOptions, retryStrategy: fixedRetryStrategy(1, 1) },

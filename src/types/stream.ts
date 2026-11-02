@@ -1,4 +1,4 @@
-import type { Realtime, ErrorInfo } from 'ably';
+import type { PubSubClient, ErrorInfo } from '@ably/pubsub-device';
 import type { Logger } from 'pino';
 
 import type { EventOrderer, SyncOptions } from '../types/optimistic.js';
@@ -12,9 +12,9 @@ export type StreamOptions = {
    */
   channelName: string;
   /**
-   * The Ably Realtime client.
+   * The Ably Pub/Sub client, created with `createClient` from `@ably/pubsub-device`.
    */
-  ably: Realtime;
+  pubsubClient: PubSubClient;
   /**
    * The logger to use for the stream.
    */

@@ -131,8 +131,8 @@ In this case, the optimistic update should be rolled back if a confirmation isn'
 
 ```typescript
 // set a default timeout of 5s second via mutation options on the model
-const modelsClient = new ModelsClient({
-    ably: ably,
+const modelsClient = createModelsClient({
+    pubsubClient: ably,
 	optimisticEventOptions: { timeout: 5000 } ,
 });
 
