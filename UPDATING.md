@@ -80,7 +80,7 @@ Import the Ably types you use alongside the Models SDK from `@ably/pubsub-device
   const ably = createClient({
     key: 'YOUR_ABLY_API_KEY',
 -   environment: 'sandbox',
-+   endpoint: 'sandbox',
++   endpoint: 'nonprod:sandbox',
   });
 ```
 

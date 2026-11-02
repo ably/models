@@ -1,4 +1,4 @@
-import { Message, ErrorInfo, PubSubClient, RealtimeChannel, PaginatedResult } from '@ably/pubsub-device';
+import type { Message, ErrorInfo, PubSubClient, RealtimeChannel, PaginatedResult } from '@ably/pubsub-device';
 import { Logger } from 'pino';
 import { Subject, Subscription } from 'rxjs';
 

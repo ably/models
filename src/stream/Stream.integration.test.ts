@@ -29,7 +29,8 @@ describe('Stream integration', () => {
     });
     const ably = createClient({
       key: data.keys[0].keyStr,
-      endpoint: 'sandbox',
+      clientId: 'models-integration-test',
+      endpoint: 'nonprod:sandbox',
     });
     const logger = pino({ level: 'silent' });
     const channel = ably.channels.get(name);
