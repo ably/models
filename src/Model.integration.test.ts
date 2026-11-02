@@ -64,7 +64,8 @@ describe('Model integration', () => {
       };
       const ably = createClient({
         key: data.keys[0].keyStr,
-        endpoint: 'sandbox',
+        clientId: 'models-integration-test',
+        endpoint: 'nonprod:sandbox',
       });
       const logger = pino({ level: 'debug' });
       const model = new Model(
@@ -309,7 +310,8 @@ describe('Model integration', () => {
 
       const ably = createClient({
         key: data.keys[0].keyStr,
-        endpoint: 'sandbox',
+        clientId: 'models-integration-test',
+        endpoint: 'nonprod:sandbox',
       });
       const logger = pino({ level: 'debug' });
       const model = new Model(

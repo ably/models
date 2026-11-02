@@ -1,7 +1,8 @@
 import { createClient, PubSubClient } from '@ably/pubsub-device';
 import { vi, it, describe, expect, expectTypeOf, beforeEach } from 'vitest';
 
-import { createModelsClient, DefaultModelsClient } from './ModelsClient.js';
+import { InvalidArgumentError } from './Errors.js';
+import { createModelsClient } from './ModelsClient.js';
 import { VERSION } from './version.js';
 
 interface ModelsTestContext {
@@ -26,10 +27,15 @@ describe('ModelsClient', () => {
 
   it<ModelsTestContext>('correctly instantiates the models client', ({ ably }) => {
     const modelsClient = createModelsClient({ pubsubClient: ably });
-    expect(modelsClient).toBeInstanceOf(DefaultModelsClient);
     expect(modelsClient.pubsubClient).toBe(ably);
     expectTypeOf(modelsClient.pubsubClient).toMatchTypeOf<PubSubClient>();
     expect(modelsClient.pubsubClient['options']).toEqual({ agents: { models: VERSION } });
+  });
+
+  it<ModelsTestContext>('rejects the renamed ably option with a helpful error', ({ ably }) => {
+    expect(() => createModelsClient({ ably } as any)).toThrowError(
+      new InvalidArgumentError('the `ably` option has been renamed to `pubsubClient`'),
+    );
   });
 
   it<ModelsTestContext>('preserves existing agent', ({ ably }) => {

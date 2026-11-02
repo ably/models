@@ -53,7 +53,7 @@ export function createModelsClient(options: ModelsOptions): ModelsClient {
 /**
  * The default implementation of {@link ModelsClient}.
  */
-export class DefaultModelsClient implements ModelsClient {
+class DefaultModelsClient implements ModelsClient {
   private opts: Omit<ModelOptions, 'channelName'>;
   private modelInstances: Record<string, Model<any>> = {};
 
@@ -62,6 +62,9 @@ export class DefaultModelsClient implements ModelsClient {
    * @param {ModelsOptions} options - Options used to configure all models instantiated here, including the underlying Ably client.
    */
   constructor(private readonly options: ModelsOptions) {
+    if (options && 'ably' in options && !('pubsubClient' in options)) {
+      throw new InvalidArgumentError('the `ably` option has been renamed to `pubsubClient`');
+    }
     if (!this.isModelsOptions(options)) {
       throw new InvalidArgumentError('expected options to be a ModelsOptions');
     }

@@ -19,7 +19,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@f1f314fca9dfce2769ece7d933488f076716723e # v1
         with:
-          node-version: 18
+          node-version: 22
       - run: npm ci
       - run: npm audit --production
   format-check:
@@ -32,7 +32,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@f1f314fca9dfce2769ece7d933488f076716723e # v1
         with:
-          node-version: 18
+          node-version: 22
       - run: npm ci
       - run: npm run format:check
   lint:
@@ -45,7 +45,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@f1f314fca9dfce2769ece7d933488f076716723e # v1
         with:
-          node-version: 18
+          node-version: 22
       - run: npm ci
       - run: npm run lint
   test:
@@ -58,7 +58,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@f1f314fca9dfce2769ece7d933488f076716723e # v1
         with:
-          node-version: 18
+          node-version: 22
       - run: npm ci
       - run: npm run test
   docs:
@@ -73,7 +73,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@f1f314fca9dfce2769ece7d933488f076716723e # v1
         with:
-          node-version: 18
+          node-version: 22
       - name: Install Package Dependencies
         run: npm ci
       - name: Build SDK
@@ -110,6 +110,6 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@f1f314fca9dfce2769ece7d933488f076716723e # v1
         with:
-          node-version: 18
+          node-version: 22
       - run: npm ci
       - run: npm run build

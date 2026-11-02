@@ -1,4 +1,4 @@
-import { Message } from '@ably/pubsub-device';
+import type { Message } from '@ably/pubsub-device';
 
 import { MessageId } from '../types/model.js';
 import type { EventOrderer } from '../types/optimistic.js';
