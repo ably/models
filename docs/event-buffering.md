@@ -10,8 +10,8 @@ By default the sliding window event buffer is off.
 It can be enabled but setting the number of millisecond to buffer events for, when instantiating the library:
 
 ```typescript
-const modelsClient = new ModelsClient({
-    ably,
+const modelsClient = createModelsClient({
+    pubsubClient: ably,
     eventBufferOptions: { bufferMs: 100 }
 });
 ```
@@ -30,8 +30,8 @@ If you are using [`adbc`](https://github.com/ably-labs/adbc/) the message ID is 
 You can specify a custom ordering based on any part of the message by passing an `eventOrderer` function:
 
 ```ts
-const modelsClient = new ModelsClient({
-    ably,
+const modelsClient = createModelsClient({
+    pubsubClient: ably,
     eventBufferOptions: { bufferMs: 100, eventOrderer: (a, b) => { ... } }
 });
 ```

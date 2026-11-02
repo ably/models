@@ -1,4 +1,4 @@
-import { Channels, ConnectionStateChange, Connection, RealtimeChannel } from 'ably';
+import { Channels, ConnectionStateChange, Connection, RealtimeChannel } from '@ably/pubsub-device';
 
 const mockPromiseErrorNotImplemented = <T>(name: string): Promise<T> => new Promise((_, reject) => reject(new Error(`mock '${name}' not implemented`)));
 const mockNotImplemented = <T>(name: string): T => { throw new Error(`mock ${name} not implemented`) };
@@ -29,4 +29,6 @@ class MockRealtime {
 	public time = () => Promise.resolve(Date.now());
 }
 
-export { MockRealtime as Realtime };
+const createClient = () => new MockRealtime();
+
+export { createClient };

@@ -1,4 +1,4 @@
-import { Types } from 'ably';
+import { Message } from '@ably/pubsub-device';
 import shuffle from 'lodash/shuffle.js';
 import { it, describe, expect, vi } from 'vitest';
 
@@ -162,13 +162,7 @@ describe('OrderedHistoryResumer', () => {
     middleware.subscribe(subscription);
 
     // construct history page newest to oldest
-    let history: Types.Message[] = [
-      createMessage(5),
-      createMessage(4),
-      createMessage(3),
-      createMessage(2),
-      createMessage(1),
-    ];
+    let history: Message[] = [createMessage(5), createMessage(4), createMessage(3), createMessage(2), createMessage(1)];
     // shuffle as the middleware should be resilient to some out-of-orderiness by sequenceId due to CGO
     expect(middleware.addHistoricalMessages(shuffle(history))).toBe(true);
     expect(() => middleware.addHistoricalMessages(history)).toThrowError(
@@ -187,7 +181,7 @@ describe('OrderedHistoryResumer', () => {
     middleware.subscribe(subscription);
 
     // construct history page newest to oldest
-    let history: Types.Message[] = [createMessage(10), createMessage(3), createMessage(2), createMessage(1)];
+    let history: Message[] = [createMessage(10), createMessage(3), createMessage(2), createMessage(1)];
     // shuffle as the middleware should be resilient to some out-of-orderiness by sequenceId due to CGO
     expect(middleware.addHistoricalMessages(shuffle(history))).toBe(true);
     expect(() => middleware.addHistoricalMessages(history)).toThrowError(
@@ -207,7 +201,7 @@ describe('OrderedHistoryResumer', () => {
     middleware.subscribe(subscription);
 
     // construct history page newest to oldest
-    let history: Types.Message[] = [createMessage(10), createMessage(3), createMessage(2), createMessage(1)];
+    let history: Message[] = [createMessage(10), createMessage(3), createMessage(2), createMessage(1)];
     // shuffle as the middleware should be resilient to some out-of-orderiness by sequenceId due to CGO
     expect(middleware.addHistoricalMessages(shuffle(history))).toBe(true);
     expect(() => middleware.addHistoricalMessages(history)).toThrowError(
@@ -227,13 +221,7 @@ describe('OrderedHistoryResumer', () => {
     middleware.subscribe(subscription);
 
     // construct history page newest to oldest
-    let history: Types.Message[] = [
-      createMessage(7),
-      createMessage(5),
-      createMessage(4),
-      createMessage(2),
-      createMessage(1),
-    ];
+    let history: Message[] = [createMessage(7), createMessage(5), createMessage(4), createMessage(2), createMessage(1)];
     expect(middleware.addHistoricalMessages(shuffle(history))).toBe(true);
 
     expect(subscription).toHaveBeenCalledTimes(3);
@@ -248,13 +236,7 @@ describe('OrderedHistoryResumer', () => {
     const subscription = vi.fn();
     middleware.subscribe(subscription);
 
-    let history: Types.Message[] = [
-      createMessage(5),
-      createMessage(4),
-      createMessage(3),
-      createMessage(2),
-      createMessage(1),
-    ];
+    let history: Message[] = [createMessage(5), createMessage(4), createMessage(3), createMessage(2), createMessage(1)];
     const page1 = history.slice(0, history.length / 2);
     const page2 = history.slice(history.length / 2 + 1);
 
@@ -272,13 +254,7 @@ describe('OrderedHistoryResumer', () => {
     const subscription = vi.fn();
     middleware.subscribe(subscription);
 
-    let history: Types.Message[] = [
-      createMessage(6),
-      createMessage(5),
-      createMessage(4),
-      createMessage(3),
-      createMessage(2),
-    ];
+    let history: Message[] = [createMessage(6), createMessage(5), createMessage(4), createMessage(3), createMessage(2)];
     const page1 = history;
     const page2 = [];
 
@@ -300,7 +276,7 @@ describe('OrderedHistoryResumer', () => {
     const subscription = vi.fn();
     middleware.subscribe(subscription);
 
-    let history: Types.Message[] = [createMessage(3), createMessage(2), createMessage(1)];
+    let history: Message[] = [createMessage(3), createMessage(2), createMessage(1)];
     const page1 = history;
     const page2 = [];
 
@@ -331,17 +307,11 @@ describe('OrderedHistoryResumer', () => {
     const subscription = vi.fn();
     middleware.subscribe(subscription);
 
-    let live: Types.Message[] = [createMessage(6), createMessage(7)];
+    let live: Message[] = [createMessage(6), createMessage(7)];
     middleware.addLiveMessages(live[0]);
     middleware.addLiveMessages(live[1]);
 
-    let history: Types.Message[] = [
-      createMessage(5),
-      createMessage(4),
-      createMessage(3),
-      createMessage(2),
-      createMessage(1),
-    ];
+    let history: Message[] = [createMessage(5), createMessage(4), createMessage(3), createMessage(2), createMessage(1)];
     expect(middleware.addHistoricalMessages(shuffle(history))).toBe(true);
 
     expect(subscription).toHaveBeenCalledTimes(4);
@@ -357,17 +327,11 @@ describe('OrderedHistoryResumer', () => {
     const subscription = vi.fn();
     middleware.subscribe(subscription);
 
-    let live: Types.Message[] = [createMessage(6), createMessage(7), createMessage(8), createMessage(9)];
+    let live: Message[] = [createMessage(6), createMessage(7), createMessage(8), createMessage(9)];
     middleware.addLiveMessages(live[0]);
     middleware.addLiveMessages(live[1]);
 
-    let history: Types.Message[] = [
-      createMessage(5),
-      createMessage(4),
-      createMessage(3),
-      createMessage(2),
-      createMessage(1),
-    ];
+    let history: Message[] = [createMessage(5), createMessage(4), createMessage(3), createMessage(2), createMessage(1)];
     const page1 = history.slice(0, history.length / 2);
     const page2 = history.slice(history.length / 2 + 1);
 
@@ -393,7 +357,7 @@ describe('OrderedHistoryResumer', () => {
     const subscription = vi.fn();
     middleware.subscribe(subscription);
 
-    let history: Types.Message[] = [createMessage(1), createMessage(0)];
+    let history: Message[] = [createMessage(1), createMessage(0)];
     expect(middleware.addHistoricalMessages(shuffle(history))).toBe(false);
     expect(subscription).not.toHaveBeenCalled();
   });

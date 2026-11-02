@@ -1,4 +1,4 @@
-import type { Message } from 'ably';
+import type { Message } from '@ably/pubsub-device';
 import type { Logger } from 'pino';
 import { Subject, Subscription } from 'rxjs';
 
@@ -107,7 +107,7 @@ export default class Model<S extends SyncFuncConstraint> extends EventEmitter<Re
     this.baseLogContext = { scope: `Model:${name}` };
 
     this.streamFactory = new StreamFactory({
-      ably: this.options.ably,
+      pubsubClient: this.options.pubsubClient,
       logger: this.options.logger,
       syncOptions: this.options.syncOptions,
       eventBufferOptions: this.options.eventBufferOptions,

@@ -1,4 +1,4 @@
-import { Message } from 'ably';
+import { Message } from '@ably/pubsub-device';
 
 import { MODELS_EVENT_UUID_HEADER } from '../../types/optimistic.js';
 

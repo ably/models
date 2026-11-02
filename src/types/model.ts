@@ -1,4 +1,4 @@
-import type { Realtime } from 'ably';
+import type { PubSubClient } from '@ably/pubsub-device';
 import type { Logger } from 'pino';
 import type { LevelWithSilent } from 'pino';
 
@@ -12,9 +12,9 @@ import type { EventBufferOptions } from './stream';
  */
 export type ModelOptions = {
   /**
-   * The Ably Realtime client.
+   * The Ably Pub/Sub client, created with `createClient` from `@ably/pubsub-device`.
    */
-  ably: Realtime;
+  pubsubClient: PubSubClient;
   /**
    * The name of the channel to use for the model.
    */

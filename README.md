@@ -63,23 +63,26 @@ To begin, you will need the following:
 
 ### Installation and authentication
 
-Install the Ably JavaScript SDK and the Realtime Data Models SDK:
+Install the Ably Pub/Sub device SDK and the Realtime Data Models SDK. `@ably/pubsub-device` is a peer dependency of the Models SDK, so you install it alongside:
 
 ```sh
-npm install ably @ably-labs/models
+npm install @ably/pubsub-device @ably-labs/models
 ```
+
+If you are upgrading from a version of the Models SDK that used the `ably` package, see [UPDATING.md](./UPDATING.md).
+
 Though you can test your installation and authentication with [basic authentication](https://ably.com/docs/auth/basic), we strongly recommend [token authentication](https://ably.com/docs/auth/token) for in production environments.
 
 ### Instantiation
 
-To instantiate the Realtime Data Models SDK, create an [Ably client](https://ably.com/docs/getting-started/setup) and pass it into the ModelsClient constructor:
+To instantiate the Realtime Data Models SDK, create an [Ably client](https://ably.com/docs/getting-started/setup) and pass it into `createModelsClient`:
 
 ```typescript
-import ModelsClient from '@ably-labs/models';
-import { Realtime } from 'ably';
+import { createModelsClient } from '@ably-labs/models';
+import { createClient } from '@ably/pubsub-device';
 
-const ably = new Realtime({ key: 'YOUR_ABLY_API_KEY' });
-const modelsClient = new ModelsClient({ ably });
+const ably = createClient({ key: 'YOUR_ABLY_API_KEY', clientId: 'YOUR_CLIENT_ID' });
+const modelsClient = createModelsClient({ pubsubClient: ably });
 ```
 
 ### Creating a Model

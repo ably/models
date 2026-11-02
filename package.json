@@ -1,6 +1,6 @@
 {
   "name": "@ably-labs/models",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "",
   "main": "dist/cjs/index.js",
   "module": "dist/mjs/index.js",
@@ -42,6 +42,7 @@
     "collaboration"
   ],
   "devDependencies": {
+    "@ably/pubsub-device": "^3.0.0",
     "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
@@ -59,9 +60,11 @@
     "uuid": "^9.0.1",
     "vitest": "^0.34.1"
   },
+  "peerDependencies": {
+    "@ably/pubsub-device": "^3.0.0"
+  },
   "dependencies": {
     "@types/lodash": "^4.14.195",
-    "ably": "^2.1.0",
     "lodash": "^4.17.21",
     "pino": "^9.0.0",
     "rxjs": "^7.8.1",

@@ -1,4 +1,4 @@
-import { Message, Realtime } from 'ably';
+import { Message, createClient, type PubSubClient } from '@ably/pubsub-device';
 import pino from 'pino';
 import { Subject } from 'rxjs';
 import { it, describe, expect, afterEach, vi, beforeEach } from 'vitest';
@@ -16,7 +16,7 @@ import { fixedRetryStrategy } from './utilities/retries.js';
 import { createMessage, customMessage } from './utilities/test/messages.js';
 import { getNthEventPromise, getEventPromises } from './utilities/test/promises.js';
 
-vi.mock('ably');
+vi.mock('@ably/pubsub-device');
 
 // Mocks the StreamFactory import so that we can modify the Stream instances
 // used by the model to spy on their methods.
@@ -68,19 +68,20 @@ let simpleTestData: TestData = {
   },
 };
 
-interface ModelTestContext extends ModelOptions {
+interface ModelTestContext extends Omit<ModelOptions, 'pubsubClient'> {
+  ably: PubSubClient;
   streams: IStreamFactory;
 }
 
 describe('Model', () => {
   beforeEach<ModelTestContext>(async (context) => {
-    const ably = new Realtime({});
+    const ably = createClient({});
     const logger = pino({ level: 'silent' });
     context.ably = ably;
     context.logger = logger;
     const { default: provider } = await import('./stream/StreamFactory.js');
     context.streams = new provider({
-      ably,
+      pubsubClient: ably,
       logger,
       syncOptions: defaultSyncOptions,
       eventBufferOptions: defaultEventBufferOptions,
@@ -110,7 +111,7 @@ describe('Model', () => {
       'test',
       { sync: sync, merge: () => simpleTestData },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -149,7 +150,7 @@ describe('Model', () => {
       'test',
       { sync: sync, merge: () => simpleTestData },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -184,7 +185,7 @@ describe('Model', () => {
       'test',
       { sync, merge },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: { ...defaultSyncOptions, retryStrategy: fixedRetryStrategy(10, configNumRetries) },
@@ -215,7 +216,7 @@ describe('Model', () => {
       'test',
       { sync, merge },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: { ...defaultSyncOptions, retryStrategy: () => -1 },
@@ -246,7 +247,7 @@ describe('Model', () => {
       'test',
       { sync, merge },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: { ...defaultSyncOptions, retryStrategy: () => -1 },
@@ -281,7 +282,7 @@ describe('Model', () => {
       'test',
       { sync, merge },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -353,7 +354,7 @@ describe('Model', () => {
       'test',
       { sync, merge },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -402,7 +403,7 @@ describe('Model', () => {
       'test',
       { sync, merge },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -476,7 +477,7 @@ describe('Model', () => {
       'test',
       { sync, merge },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -545,7 +546,7 @@ describe('Model', () => {
       'test',
       { sync, merge },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -589,7 +590,7 @@ describe('Model', () => {
         merge: (state) => state,
       },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -628,7 +629,7 @@ describe('Model', () => {
       'test',
       { sync: sync, merge: mergeFn },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -711,7 +712,7 @@ describe('Model', () => {
       'test',
       { sync, merge },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -758,7 +759,7 @@ describe('Model', () => {
       'test',
       { sync, merge: () => 'merged' },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -795,7 +796,7 @@ describe('Model', () => {
       'test',
       { sync, merge: () => 'merged' },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -826,7 +827,7 @@ describe('Model', () => {
       'test',
       { sync: sync, merge: mergeFn },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -874,7 +875,7 @@ describe('Model', () => {
         merge: mergeFn,
       },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -934,7 +935,7 @@ describe('Model', () => {
         merge: mergeFn,
       },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -984,7 +985,7 @@ describe('Model', () => {
         merge: mergeFn,
       },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -1056,7 +1057,7 @@ describe('Model', () => {
         merge: mergeFn,
       },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -1129,7 +1130,7 @@ describe('Model', () => {
         merge: mergeFn,
       },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -1224,7 +1225,7 @@ describe('Model', () => {
         merge: mergeFn,
       },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -1317,7 +1318,7 @@ describe('Model', () => {
         merge: mergeFn,
       },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -1391,7 +1392,7 @@ describe('Model', () => {
       'test',
       { sync: sync, merge: mergeFn },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -1462,7 +1463,7 @@ describe('Model', () => {
         merge: mergeFn,
       },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -1508,7 +1509,7 @@ describe('Model', () => {
         merge: mergeFn,
       },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -1552,7 +1553,7 @@ describe('Model', () => {
         merge: mergeFn,
       },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -1589,7 +1590,7 @@ describe('Model', () => {
         merge: mergeFn,
       },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: { ...defaultSyncOptions, retryStrategy: fixedRetryStrategy(1, 3) },
@@ -1633,7 +1634,7 @@ describe('Model', () => {
         merge: mergeFn,
       },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: { ...defaultSyncOptions, retryStrategy: fixedRetryStrategy(1, 3) },
@@ -1678,7 +1679,7 @@ describe('Model', () => {
         },
       },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: defaultSyncOptions,
@@ -1729,7 +1730,7 @@ describe('Model', () => {
       'test',
       { sync, merge },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: { ...defaultSyncOptions, retryStrategy: fixedRetryStrategy(1, 1) },
@@ -1798,7 +1799,7 @@ describe('Model', () => {
         },
       },
       {
-        ably,
+        pubsubClient: ably,
         channelName,
         logger,
         syncOptions: { ...defaultSyncOptions, retryStrategy: fixedRetryStrategy(1, 3) },

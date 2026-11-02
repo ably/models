@@ -18,7 +18,7 @@
       - A major update in the AblyJS SDK will also require a major update in the Models SDK.
       - The second number represents a minor release, which lets users know new functionality or features have been added.
       - The third number represents a patch release, which represents bug-fixes and may be used when no action should be required from users.
-   1. The commit should update `package.json`, the `ModelsClient.ts` class containing a `version` property and `package-lock.json`.
+   1. The commit should update `package.json`, `src/version.ts` and `package-lock.json`.
       Running `npm install` after changing `package.json` will update `package-lock.json`.
    1. Update the README.md for any references to the new version, such as the CDN link.
 1. Merge the commit into main.

@@ -1,4 +1,5 @@
-import ModelsClient from './ModelsClient.js';
+export { createModelsClient } from './ModelsClient.js';
+export type { ModelsClient } from './ModelsClient.js';
 
 export type * from './types/callbacks.js';
 export type * from './types/helpers.js';
@@ -12,4 +13,3 @@ export type * from './utilities/EventEmitter.js';
 export type { default as Model } from './Model.js';
 
 export * from './utilities/retries.js';
-export default ModelsClient;

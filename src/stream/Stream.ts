@@ -1,4 +1,4 @@
-import { Message, ErrorInfo, Realtime, RealtimeChannel, PaginatedResult } from 'ably';
+import { Message, ErrorInfo, PubSubClient, RealtimeChannel, PaginatedResult } from '@ably/pubsub-device';
 import { Logger } from 'pino';
 import { Subject, Subscription } from 'rxjs';
 
@@ -25,7 +25,7 @@ export interface IStream {
  * A Stream is an abstraction over an Ably channel which handles the channel lifecycle.
  */
 export default class Stream extends EventEmitter<Record<StreamState, StreamStateChange>> implements IStream {
-  private readonly ably: Realtime;
+  private readonly pubsubClient: PubSubClient;
   private currentState: StreamState = 'initialized';
   private subscriptions = new Subject<Message>();
   private subscriptionMap: WeakMap<StandardCallback<Message>, Subscription> = new WeakMap();
@@ -37,7 +37,7 @@ export default class Stream extends EventEmitter<Record<StreamState, StreamState
 
   constructor(readonly options: StreamOptions) {
     super();
-    this.ably = options.ably;
+    this.pubsubClient = options.pubsubClient;
     this.logger = options.logger;
     this.baseLogContext = { scope: `Stream#${options.channelName}` };
   }
@@ -89,7 +89,7 @@ export default class Stream extends EventEmitter<Record<StreamState, StreamState
     }
     if (this.ablyChannel) {
       await this.ablyChannel.detach();
-      this.ably.channels.release(this.ablyChannel.name);
+      this.pubsubClient.channels.release(this.ablyChannel.name);
     }
   }
 
@@ -150,7 +150,7 @@ export default class Stream extends EventEmitter<Record<StreamState, StreamState
     );
     this.middleware.subscribe(this.onMiddlewareMessage.bind(this));
 
-    this.ablyChannel = this.ably.channels.get(this.options.channelName);
+    this.ablyChannel = this.pubsubClient.channels.get(this.options.channelName);
 
     if (this.ablyChannel.state !== 'attached' && this.ablyChannel.state !== 'attaching') {
       await this.ablyChannel.setOptions({ params: { agent: `models/${VERSION}` } });
@@ -164,7 +164,7 @@ export default class Stream extends EventEmitter<Record<StreamState, StreamState
         this.subscriptions.error(new StreamDiscontinuityError('discontinuity in channel connection'));
       }
     });
-    await this.ably.connection.whenState('connected');
+    await this.pubsubClient.connection.whenState('connected');
 
     const subscribeResult = await this.ablyChannel.subscribe(this.onChannelMessage.bind(this)); // live messages
     if (!subscribeResult) {

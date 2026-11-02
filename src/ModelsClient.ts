@@ -1,4 +1,4 @@
-import { Realtime } from 'ably';
+import type { PubSubClient } from '@ably/pubsub-device';
 import pino from 'pino';
 
 import { InvalidArgumentError } from './Errors.js';
@@ -9,7 +9,7 @@ import type { OptimisticEventOptions, SyncOptions } from './types/optimistic.js'
 import type { EventBufferOptions } from './types/stream.js';
 import { VERSION } from './version.js';
 
-interface AblyClientWithOptions extends Realtime {
+interface AblyClientWithOptions extends PubSubClient {
   options?: {
     agents?: Record<string, string | boolean>;
   };
@@ -19,12 +19,46 @@ interface AblyClientWithOptions extends Realtime {
  * ModelsClient captures the set of named Model instances used by your application.
  * And provides methods to construct a new model.
  */
-export default class ModelsClient {
+export interface ModelsClient {
+  /**
+   * The Ably Pub/Sub client shared by all models.
+   */
+  readonly pubsubClient: PubSubClient;
+
+  /**
+   * Namespace for getting an existing model instance or creating a new model instance.
+   */
+  readonly models: {
+    /**
+     * Gets an existing or creates a new model instance with the given name.
+     * @template S - The sync function type.
+     * @param {ModelSpec} spec - The channelName, sync and merge functions for this model.
+     * The name and functions will be automatically setup on the model returned.
+     * The model will not start until you call model.sync() or model.subscribe()
+     * @returns {Model} The model instance.
+     */
+    get<S extends SyncFuncConstraint>(spec: ModelSpec<S>): Model<S>;
+  };
+}
+
+/**
+ * Creates a new ModelsClient.
+ * @param {ModelsOptions} options - Options used to configure all models instantiated here, including the underlying Ably client.
+ * @returns {ModelsClient} The new ModelsClient.
+ */
+export function createModelsClient(options: ModelsOptions): ModelsClient {
+  return new DefaultModelsClient(options);
+}
+
+/**
+ * The default implementation of {@link ModelsClient}.
+ */
+export class DefaultModelsClient implements ModelsClient {
   private opts: Omit<ModelOptions, 'channelName'>;
   private modelInstances: Record<string, Model<any>> = {};
 
   /**
-   * Constructs a new ModelsClient instance.
+   * Constructs a new DefaultModelsClient instance.
    * @param {ModelsOptions} options - Options used to configure all models instantiated here, including the underlying Ably client.
    */
   constructor(private readonly options: ModelsOptions) {
@@ -46,13 +80,13 @@ export default class ModelsClient {
     const syncOptions: SyncOptions = Object.assign({}, defaultSyncOptions, this.options.syncOptions);
     this.opts = {
       logger: pino({ level: options.logLevel || 'silent' }),
-      ably: options.ably,
+      pubsubClient: options.pubsubClient,
       syncOptions,
       optimisticEventOptions,
       eventBufferOptions,
     };
-    this.addAgent(this.opts.ably as AblyClientWithOptions);
-    this.options.ably.time();
+    this.addAgent(this.opts.pubsubClient as AblyClientWithOptions);
+    this.options.pubsubClient.time();
   }
 
   private addAgent(client: AblyClientWithOptions) {
@@ -64,23 +98,23 @@ export default class ModelsClient {
   }
 
   /**
-   * @returns {Types.RealtimePromise} The Ably client shared by all models.
+   * @returns {PubSubClient} The Ably Pub/Sub client shared by all models.
    */
-  get ably() {
-    return this.options.ably;
+  get pubsubClient(): PubSubClient {
+    return this.options.pubsubClient;
   }
 
   /**
    * Namespace for getting an existing model instance or creating a new model instance.
    * @returns {Object} An object with a get method for getting an existing model instance or creating a new model instance.
    */
-  get models() {
+  get models(): ModelsClient['models'] {
     return {
       /**
        * Gets an existing or creates a new model instance with the given name.
        * @template S - The sync function type.
        * @param {ModelSpec} spec - The channelName, sync and merge functions for this model.
-       * The name and funcitons will be automatically setup on the model returned.
+       * The name and functions will be automatically setup on the model returned.
        * The model will not start until you call model.sync() or model.subscribe()
        * @returns {Model} The model instance.
        */
@@ -108,7 +142,7 @@ export default class ModelsClient {
   }
 
   private isModelsOptions(options: any): options is ModelsOptions {
-    return options && typeof options.ably === 'object';
+    return options && typeof options.pubsubClient === 'object';
   }
 
   private isModelSpec<S extends SyncFuncConstraint>(spec: any): spec is ModelSpec<S> {

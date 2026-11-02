@@ -1,4 +1,12 @@
-import { Realtime, ConnectionState, ChannelStateChange, ConnectionStateChange, PaginatedResult, Message } from 'ably';
+import {
+  createClient,
+  PubSubClient,
+  ConnectionState,
+  ChannelStateChange,
+  ConnectionStateChange,
+  PaginatedResult,
+  Message,
+} from '@ably/pubsub-device';
 import pino, { type Logger } from 'pino';
 import { Subject } from 'rxjs';
 import { it, describe, expect, beforeEach, afterEach, vi } from 'vitest';
@@ -9,17 +17,17 @@ import type { StreamOptions } from '../types/stream.js';
 import { statePromise } from '../utilities/promises.js';
 import { createMessage } from '../utilities/test/messages.js';
 
-vi.mock('ably');
+vi.mock('@ably/pubsub-device');
 
-interface StreamTestContext extends StreamOptions {
+interface StreamTestContext extends Omit<StreamOptions, 'pubsubClient'> {
   channelName: string;
-  ably: Realtime;
+  ably: PubSubClient;
   logger: Logger;
 }
 
 describe('Stream', () => {
   beforeEach<StreamTestContext>((context) => {
-    const ably = new Realtime({});
+    const ably = createClient({});
     ably.connection.whenState = vi.fn<[ConnectionState], Promise<ConnectionStateChange>>(async () => {
       return {
         current: 'connected',
@@ -63,7 +71,7 @@ describe('Stream', () => {
     );
 
     const stream = new Stream({
-      ably,
+      pubsubClient: ably,
       logger,
       channelName: 'foobar',
       syncOptions: defaultSyncOptions,
@@ -97,7 +105,7 @@ describe('Stream', () => {
     );
 
     const stream = new Stream({
-      ably,
+      pubsubClient: ably,
       logger,
       channelName: 'foobar',
       syncOptions: defaultSyncOptions,
@@ -144,7 +152,7 @@ describe('Stream', () => {
     });
 
     const stream = new Stream({
-      ably,
+      pubsubClient: ably,
       logger,
       channelName: 'foobar',
       syncOptions: defaultSyncOptions,
@@ -223,7 +231,7 @@ describe('Stream', () => {
     });
 
     const stream = new Stream({
-      ably,
+      pubsubClient: ably,
       logger,
       channelName: 'foobar',
       syncOptions: defaultSyncOptions,
@@ -302,7 +310,7 @@ describe('Stream', () => {
     });
 
     const stream = new Stream({
-      ably,
+      pubsubClient: ably,
       logger,
       channelName: 'foobar',
       syncOptions: defaultSyncOptions,
@@ -359,7 +367,7 @@ describe('Stream', () => {
     });
 
     const stream = new Stream({
-      ably,
+      pubsubClient: ably,
       logger,
       channelName: 'foobar',
       syncOptions: defaultSyncOptions,
@@ -416,7 +424,7 @@ describe('Stream', () => {
     });
 
     const stream = new Stream({
-      ably,
+      pubsubClient: ably,
       logger,
       channelName: 'foobar',
       syncOptions: defaultSyncOptions,
@@ -461,7 +469,7 @@ describe('Stream', () => {
     });
 
     const stream = new Stream({
-      ably,
+      pubsubClient: ably,
       logger,
       channelName,
       syncOptions: defaultSyncOptions,
@@ -506,7 +514,7 @@ describe('Stream', () => {
     });
 
     const stream = new Stream({
-      ably,
+      pubsubClient: ably,
       logger,
       channelName,
       syncOptions: defaultSyncOptions,
@@ -562,7 +570,7 @@ describe('Stream', () => {
     });
 
     const stream = new Stream({
-      ably,
+      pubsubClient: ably,
       logger,
       channelName,
       syncOptions: defaultSyncOptions,
@@ -609,7 +617,7 @@ describe('Stream', () => {
     );
 
     const stream = new Stream({
-      ably,
+      pubsubClient: ably,
       logger,
       channelName,
       syncOptions: defaultSyncOptions,
@@ -658,7 +666,7 @@ describe('Stream', () => {
     );
 
     const stream = new Stream({
-      ably,
+      pubsubClient: ably,
       logger,
       channelName,
       syncOptions: defaultSyncOptions,
@@ -705,7 +713,7 @@ describe('Stream', () => {
     );
 
     const stream = new Stream({
-      ably,
+      pubsubClient: ably,
       logger,
       channelName,
       syncOptions: defaultSyncOptions,
@@ -756,7 +764,7 @@ describe('Stream', () => {
     );
 
     const stream = new Stream({
-      ably,
+      pubsubClient: ably,
       logger,
       channelName,
       syncOptions: defaultSyncOptions,
@@ -794,7 +802,7 @@ describe('Stream', () => {
     ably.channels.release = vi.fn();
 
     const stream = new Stream({
-      ably,
+      pubsubClient: ably,
       logger,
       channelName,
       syncOptions: defaultSyncOptions,
@@ -837,7 +845,7 @@ describe('Stream', () => {
     });
 
     const stream = new Stream({
-      ably,
+      pubsubClient: ably,
       logger,
       channelName,
       syncOptions: defaultSyncOptions,

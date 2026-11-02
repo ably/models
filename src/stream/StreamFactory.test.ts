@@ -1,4 +1,10 @@
-import { Realtime, RealtimeChannel, ConnectionState, ConnectionStateChange } from 'ably';
+import {
+  createClient,
+  RealtimeChannel,
+  ConnectionState,
+  ConnectionStateChange,
+  PubSubClient,
+} from '@ably/pubsub-device';
 import pino from 'pino';
 import { it, describe, expect, beforeEach, afterEach, vi } from 'vitest';
 
@@ -7,15 +13,16 @@ import StreamFactory from './StreamFactory.js';
 import { defaultEventBufferOptions, defaultSyncOptions } from '../Options.js';
 import type { StreamOptions } from '../types/stream.js';
 
-vi.mock('ably');
+vi.mock('@ably/pubsub-device');
 
-interface StreamTestContext extends StreamOptions {
+interface StreamTestContext extends Omit<StreamOptions, 'pubsubClient'> {
+  ably: PubSubClient;
   ablyChannel: RealtimeChannel;
 }
 
 describe('StreamFactory', () => {
   beforeEach<StreamTestContext>((context) => {
-    const ably = new Realtime({});
+    const ably = createClient({});
     ably.connection.whenState = vi.fn<[ConnectionState], Promise<ConnectionStateChange>>(async () => {
       return {
         current: 'connected',
@@ -36,27 +43,32 @@ describe('StreamFactory', () => {
   });
 
   it<StreamTestContext>('succeeds with valid configurations', async ({ ably, logger }) => {
-    new StreamFactory({ ably, logger, eventBufferOptions: defaultEventBufferOptions, syncOptions: defaultSyncOptions });
     new StreamFactory({
-      ably,
+      pubsubClient: ably,
+      logger,
+      eventBufferOptions: defaultEventBufferOptions,
+      syncOptions: defaultSyncOptions,
+    });
+    new StreamFactory({
+      pubsubClient: ably,
       logger,
       eventBufferOptions: { bufferMs: 0, eventOrderer: numericOtherwiseLexicographicOrderer },
       syncOptions: defaultSyncOptions,
     });
     new StreamFactory({
-      ably,
+      pubsubClient: ably,
       logger,
       eventBufferOptions: { bufferMs: 1, eventOrderer: numericOtherwiseLexicographicOrderer },
       syncOptions: defaultSyncOptions,
     });
     new StreamFactory({
-      ably,
+      pubsubClient: ably,
       logger,
       eventBufferOptions: { bufferMs: 1, eventOrderer: () => -1 },
       syncOptions: defaultSyncOptions,
     });
     new StreamFactory({
-      ably,
+      pubsubClient: ably,
       logger,
       eventBufferOptions: defaultEventBufferOptions,
       syncOptions: { historyPageSize: 1, messageRetentionPeriod: '2m' },
@@ -66,7 +78,7 @@ describe('StreamFactory', () => {
   it<StreamTestContext>('fails with lt zero event buffer ms', async ({ ably, logger }) => {
     try {
       new StreamFactory({
-        ably,
+        pubsubClient: ably,
         logger,
         eventBufferOptions: { bufferMs: -1, eventOrderer: numericOtherwiseLexicographicOrderer },
         syncOptions: defaultSyncOptions,
@@ -80,7 +92,7 @@ describe('StreamFactory', () => {
   it<StreamTestContext>('fails with zero history page size', async ({ ably, logger }) => {
     try {
       new StreamFactory({
-        ably,
+        pubsubClient: ably,
         logger,
         eventBufferOptions: defaultEventBufferOptions,
         syncOptions: { historyPageSize: 0, messageRetentionPeriod: '2m' },
@@ -94,7 +106,7 @@ describe('StreamFactory', () => {
   it<StreamTestContext>('fails with lt zero history page size', async ({ ably, logger }) => {
     try {
       new StreamFactory({
-        ably,
+        pubsubClient: ably,
         logger,
         eventBufferOptions: defaultEventBufferOptions,
         syncOptions: { historyPageSize: -1, messageRetentionPeriod: '2m' },
